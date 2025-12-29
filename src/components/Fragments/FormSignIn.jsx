@@ -24,7 +24,7 @@ function FormSignIn() {
                 label="Password"
                 id="password"
                 type="password"
-                placeholder="***************"
+                placeholder="●●●●●●●●●●"
                 name="password"
               />
             </div>
@@ -36,7 +36,7 @@ function FormSignIn() {
                 name="status"
               />
             </div>
-            <Button />
+            <Button>Login</Button>
           </form>
         </div>
         {/* form end */}
