@@ -4,13 +4,14 @@ import SignUpPage from "./pages/signUp";
 import ErrorPage from "./pages/error";
 import DashboardPage from "./pages/dashboard";
 import BalancePage from "./pages/balance";
-import { 
-  createBrowserRouter, 
+import ExpensesPage from "./pages/expenses";
+import {
+  createBrowserRouter,
   Navigate,
-  RouterProvider, 
+  RouterProvider,
 } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "./context/authContext";  
+import { AuthContext } from "./context/authContext";
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -57,6 +58,14 @@ function App() {
         </RequireAuth>
       ),
     },
+    {
+      path: "/expenses",
+      element: (
+        <RequireAuth>
+          <ExpensesPage />
+        </RequireAuth>
+      ),
+    },
   ]);
 
   return (
@@ -65,6 +74,5 @@ function App() {
     </>
   );
 }
-
 
 export default App;
