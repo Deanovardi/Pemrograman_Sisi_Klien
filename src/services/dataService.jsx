@@ -21,8 +21,7 @@ export const goalService = async () => {
       // If array is not empty, get first element
       if (response.data.data.length > 0) {
         data = response.data.data[0];
-      }
-      else {
+      } else {
         console.log("Goals data is empty array");
         data = {};
       }
@@ -84,16 +83,57 @@ export const getExpensesService = async () => {
     console.log("Expenses API Response:", response.data);
 
     // Handle different response structures
-    let data = [];
+    let rawData = [];
 
     if (Array.isArray(response.data)) {
-      data = response.data;
+      rawData = response.data;
     } else if (response.data?.data && Array.isArray(response.data.data)) {
-      data = response.data.data;
+      rawData = response.data.data;
+    } else if (
+      response.data?.expenses &&
+      Array.isArray(response.data.expenses)
+    ) {
+      rawData = response.data.expenses;
     }
 
-    console.log("Processed expenses data:", data);
-    return data;
+    console.log("Raw expenses data:", rawData);
+
+    // Log first item structure to see what fields are available
+    if (rawData.length > 0) {
+      console.log("First expense item structure:", rawData[0]);
+      console.log("First expense keys:", Object.keys(rawData[0]));
+    }
+
+    // API returns array of expenses grouped by category
+    // Each item has: {category, amount, percentage, trend, detail: Array}
+    const transformedData = rawData.map((expense) => {
+      // Log detail structure for debugging
+      if (expense.detail && expense.detail.length > 0) {
+        console.log("Detail item structure:", expense.detail[0]);
+        console.log("Detail item keys:", Object.keys(expense.detail[0]));
+      }
+
+      const items = (expense.detail || []).map((detailItem) => ({
+        description:
+          detailItem.item ||
+          detailItem.description ||
+          detailItem.name ||
+          "Untitled",
+        amount: detailItem.amount || 0,
+        date: detailItem.date || new Date().toISOString(),
+      }));
+
+      return {
+        category: expense.category || "Others",
+        totalAmount: expense.amount || 0,
+        percentage: expense.percentage || 0,
+        trend: expense.trend || "up",
+        items: items,
+      };
+    });
+    console.log("Transformed expenses data:", transformedData);
+
+    return transformedData;
   } catch (error) {
     console.error("Expenses API Error:", error.message);
     // Return empty array instead of throwing

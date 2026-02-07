@@ -15,6 +15,7 @@ function Expenses() {
       try {
         setLoading(true);
         const data = await getExpensesService();
+        console.log("Expenses data received:", data);
         setExpensesData(data);
         setError(null);
       } catch (err) {
@@ -53,9 +54,19 @@ function Expenses() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {expensesData.map((expense) => (
-            <CardExpenseItem key={expense.id} expense={expense} />
-          ))}
+          {expensesData.map((expense) => {
+            console.log("Rendering expense:", expense);
+            return (
+              <CardExpenseItem
+                key={expense.category}
+                category={expense.category}
+                totalAmount={expense.totalAmount}
+                percentage={expense.percentage}
+                trend={expense.trend}
+                items={expense.items}
+              />
+            );
+          })}
         </div>
       )}
     </MainLayout>

@@ -1,88 +1,126 @@
 import React from "react";
 import Icon from "../Elements/Icon";
 
-function CardExpenseItem({ expense }) {
-  // Map category ke icon - case insensitive
-  const getCategoryIcon = (category) => {
-    const categoryLower = category?.toLowerCase() || "";
+function CardExpense({
+  category,
+  totalAmount,
+  percentage,
+  trend = "up",
+  items = [],
+  icon,
+}) {
+  const isIncrease = trend === "up";
 
-    const iconMap = {
-      housing: <Icon.House size={32} />,
-      food: <Icon.Food size={32} />,
-      transportation: <Icon.Transport size={32} />,
-      entertainment: <Icon.Gamepad size={32} />,
-      shopping: <Icon.Shopping size={32} />,
-      other: <Icon.Other size={32} />,
-      others: <Icon.Other size={32} />,
-    };
-
-    return iconMap[categoryLower] || <Icon.Other size={32} />;
+  const getCategoryIcon = () => {
+    const key = category?.toLowerCase() || "";
+    switch (key) {
+      case "housing":
+        return <Icon.House size={24} />;
+      case "food":
+        return <Icon.Food size={24} />;
+      case "transportation":
+        return <Icon.Transport size={24} />;
+      case "entertainment":
+        return <Icon.Movie size={24} />;
+      case "shopping":
+        return <Icon.Shopping size={24} />;
+      case "others":
+        return <Icon.Other size={24} />;
+      default:
+        return icon || <Icon.Other size={24} />;
+    }
   };
 
-  // Determine arrow direction berdasarkan perubahan
-  const isIncrease = Math.random() > 0.5;
-  const percentageChange = Math.floor(Math.random() * 25);
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    if (typeof dateString === "string" && dateString.includes(" "))
+      return dateString;
+    const d = new Date(dateString);
+    if (isNaN(d)) return dateString;
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
-    <div className="p-4 border border-gray-05 rounded-lg bg-white hover:shadow-md transition">
-      {/* Header dengan icon dan persentase */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="p-3 bg-gray-05 rounded-lg text-primary">
-          {getCategoryIcon(expense.category)}
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-gray-03 mb-1">
-            Compare to the last month
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-100">
+      {/* Header */}
+      <div className="flex items-start justify-between p-4 bg-gray-100">
+        <div className="flex items-start gap-3">
+          <div className="bg-gray-200 p-2.5 rounded-lg flex items-center justify-center">
+            <div className="text-gray-500">{getCategoryIcon()}</div>
           </div>
-          <div
-            className={`flex items-center gap-1 text-sm font-bold ${
-              isIncrease ? "text-special-red" : "text-special-green"
-            }`}
-          >
-            <span>{percentageChange}%</span>
+          <div>
+            <div className="text-gray-500 text-base font-bold mb-1">
+              {category}
+            </div>
+            <div className="text-2xl font-bold text-gray-900">
+              ${totalAmount}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-0.5">
+            <span className="font-bold text-lg text-gray-400">
+              {Math.abs(percentage)}%
+            </span>
             {isIncrease ? (
-              <Icon.ArrowUp size={14} />
+              <svg
+                className="w-5 h-5 text-red-500"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" />
+              </svg>
             ) : (
-              <Icon.ArrowDown size={14} />
+              <svg
+                className="w-5 h-5 text-green-500"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z" />
+              </svg>
             )}
           </div>
+          <div className="text-base text-gray-400 whitespace-nowrap mt-0.5">
+            Compare to the last month
+          </div>
         </div>
       </div>
 
-      {/* Category Name dan Amount */}
-      <div className="mb-3">
-        <h3 className="font-bold text-gray-01 mb-1">{expense.category}</h3>
-        <div className="text-2xl font-bold text-gray-01">${expense.amount}</div>
-      </div>
-
-      {/* Detail Items - jika ada */}
-      {expense.items && expense.items.length > 0 && (
-        <div className="mb-3 space-y-2">
-          {expense.items.map((item, index) => (
+      {/* Items List */}
+      {items && Array.isArray(items) && items.length > 0 ? (
+        <div className="space-y-0 bg-white px-4">
+          {items.map((item, index) => (
             <div
               key={index}
-              className="flex justify-between text-xs text-gray-03"
+              className={`flex justify-between items-start py-3 ${
+                index > 0 ? "border-t border-gray-200" : ""
+              }`}
             >
-              <span>{item.name}</span>
-              <span>${item.amount}</span>
+              <div className="text-base text-gray-400 font-semibold">
+                {item.description}
+              </div>
+              <div className="text-right">
+                <div className="font-semibold text-base text-gray-400">
+                  ${item.amount}
+                </div>
+                <div className="text-base text-gray-400 font-medium mt-0.5">
+                  {formatDate(item.date)}
+                </div>
+              </div>
             </div>
           ))}
         </div>
+      ) : (
+        <div className="text-center text-gray-400 text-sm py-4 bg-white px-4">
+          No transactions
+        </div>
       )}
-
-      {/* Description dan Date */}
-      <div
-        className={`${
-          expense.items && expense.items.length > 0 ? "pt-3" : "pt-3"
-        } border-t border-gray-05`}
-      >
-        <p className="text-xs text-gray-03 mb-1">{expense.description}</p>
-        <p className="text-xs text-gray-03">
-          {new Date(expense.date).toLocaleDateString("id-ID")}
-        </p>
-      </div>
     </div>
   );
 }
 
-export default CardExpenseItem;
+export default CardExpense;
